@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="navbar">Upload Resume</div>
+    <div class="container">
+        <h2>Upload Your Resume for {{ job_title }}</h2>
+        <form action="{{ url_for('user_upload_resume', job_id=job_id) }}" method="POST" enctype="multipart/form-data">
+            <label>Full Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Upload Resume (PDF only):</label>
+            <input type="file" name="resume" accept=".pdf" required>
+
+            <button type="submit">Submit Application</button>
+        </form>
+    </div>
+</body>
+</html>

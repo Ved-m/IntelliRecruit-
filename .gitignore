@@ -1,0 +1,23 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+firebase-key.json
+
+# Python virtual environments and caches
+myenv/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Uploaded and generated files
+uploads/*
+instance/
+
+# Tooling and OS files
+.pytest_cache/
+.coverage
+.DS_Store
+Thumbs.db

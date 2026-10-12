@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Job Posting</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 10px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 280px;
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .sidebar-nav-item:hover, .sidebar-nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid white;
+        }
+        
+        .sidebar-nav-item i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 20px 25px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .form-control {
+            border-radius: 7px;
+            padding: 12px 15px;
+            border: 1px solid #e0e6ed;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+            border-color: var(--primary-color);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #3b3f5c;
+        }
+        
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-submit:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 1050;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+                transform: translateX(0);
+            }
+            
+            .sidebar-brand {
+                display: none;
+            }
+            
+            .sidebar-nav-item span {
+                display: none;
+            }
+            
+            .sidebar-nav-item {
+                padding: 15px;
+                justify-content: center;
+            }
+            
+            .sidebar-nav-item i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+        
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1060;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+        
+        /* Animation for stats cards */
+        .stats-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s ease forwards;
+        }
+        
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stats-card:nth-child(1) { animation-delay: 0.1s; }
+        .stats-card:nth-child(2) { animation-delay: 0.2s; }
+        .stats-card:nth-child(3) { animation-delay: 0.3s; }
+        .stats-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <!-- Menu Toggle Button (Mobile) -->
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">JobMatch AI</div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="/admin" class="sidebar-nav-item active">
+                <i class="fas fa-plus-circle"></i>
+                <span>Post Job</span>
+            </a>
+            <a href="/admin_dashboard" class="sidebar-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_panel') }}" class="sidebar-nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="{{ url_for('home') }}" class="sidebar-nav-item">
+                <i class="fas fa-home"></i>
+                <span>User View</span>
+            </a>
+            <a href="#" class="sidebar-nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="sidebar-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Applicants</span>
+            </a>
+            <a href="#" class="sidebar-nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Job Posting</h1>
+        
+        <!-- Quick Stats Row -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-light p-3 me-3">
+                            <i class="fas fa-briefcase text-primary fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Active Jobs</h6>
+                            <h4 class="mb-0 fw-bold" id="activeJobsCount">12</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-light p-3 me-3">
+                            <i class="fas fa-users text-success fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Total Applicants</h6>
+                            <h4 class="mb-0 fw-bold" id="applicantsCount">48</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-light p-3 me-3">
+                            <i class="fas fa-check-circle text-info fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Matched Candidates</h6>
+                            <h4 class="mb-0 fw-bold" id="matchedCount">18</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-light p-3 me-3">
+                            <i class="fas fa-chart-pie text-warning fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Avg. Match Score</h6>
+                            <h4 class="mb-0 fw-bold" id="avgScore">78.5%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Job Form Card -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Post New Job Opportunity</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="jobActiveSwitch" checked>
+                    <label class="form-check-label" for="jobActiveSwitch">Active</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="jobForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="jobTitle" class="form-label">Job Title</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-briefcase text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="jobTitle" name="title" placeholder="e.g. Senior Software Engineer" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="jobCategory" class="form-label">Job Category</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-tag text-primary"></i>
+                                    </span>
+                                    <select class="form-control" id="jobCategory">
+                                        <option value="it">IT & Software</option>
+                                        <option value="marketing">Marketing</option>
+                                        <option value="design">Design</option>
+                                        <option value="finance">Finance</option>
+                                        <option value="hr">Human Resources</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="jobLocation" class="form-label">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-map-marker-alt text-primary"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="jobLocation" placeholder="e.g. Remote, New York, NY">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="jobType" class="form-label">Job Type</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-clock text-primary"></i>
+                                    </span>
+                                    <select class="form-control" id="jobType">
+                                        <option value="fulltime">Full-time</option>
+                                        <option value="parttime">Part-time</option>
+                                        <option value="contract">Contract</option>
+                                        <option value="freelance">Freelance</option>
+                                        <option value="internship">Internship</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <label for="jobDescription" class="form-label">Job Description</label>
+                        <textarea class="form-control" id="jobDescription" name="description" rows="6" placeholder="Enter detailed job description, responsibilities, and requirements..." required></textarea>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="requiredSkills" class="form-label">Required Skills (comma separated)</label>
+                                <input type="text" class="form-control" id="requiredSkills" placeholder="e.g. Python, JavaScript, React">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="experienceLevel" class="form-label">Experience Level</label>
+                                <select class="form-control" id="experienceLevel">
+                                    <option value="entry">Entry Level (0-2 years)</option>
+                                    <option value="mid">Mid Level (2-5 years)</option>
+                                    <option value="senior">Senior Level (5+ years)</option>
+                                    <option value="executive">Executive Level</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" id="clearForm">
+                            <i class="fas fa-times me-2"></i> Clear Form
+                        </button>
+                        <button type="submit" class="btn btn-submit px-5">
+                            <i class="fas fa-paper-plane me-2"></i> Post Job
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Notification -->
+    <div class="success-notification" id="successNotification">
+        <i class="fas fa-check-circle me-2"></i> Job posted successfully!
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById("menuToggle").addEventListener("click", function() {
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.querySelector(".main-content");
+            
+            if (sidebar.style.transform === "translateX(0px)") {
+                sidebar.style.transform = "translateX(-100%)";
+                mainContent.style.marginLeft = "0";
+            } else {
+                sidebar.style.transform = "translateX(0px)";
+                sidebar.style.width = "280px";
+                mainContent.style.marginLeft = "280px";
+            }
+        });
+        
+        // Form submission
+        document.getElementById("jobForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const title = document.getElementById("jobTitle").value.trim();
+            const description = document.getElementById("jobDescription").value.trim();
+            
+            if (!title || !description) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            try {
+                const response = await fetch("/upload_job", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ title, description })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Show success notification
+                    const notification = document.getElementById("successNotification");
+                    notification.style.display = "block";
+                    
+                    // Hide notification after 3 seconds
+                    setTimeout(function() {
+                        notification.style.display = "none";
+                    }, 3000);
+                    
+                    // Clear form
+                    document.getElementById("jobForm").reset();
+                    
+                    // Update active jobs count (for demo)
+                    const currentCount = parseInt(document.getElementById("activeJobsCount").textContent);
+                    document.getElementById("activeJobsCount").textContent = currentCount + 1;
+                } else {
+                    alert(result.error || "Error posting job");
+                }
+            } catch (error) {
+                alert("An error occurred while uploading the job.");
+                console.error("Error:", error);
+            }
+        });
+        
+        // Clear form button
+        document.getElementById("clearForm").addEventListener("click", function() {
+            document.getElementById("jobForm").reset();
+        });
+        
+        // Demo: Get actual job count from API (if available)
+        async function fetchJobStats() {
+            try {
+                const response = await fetch("/get_jobs");
+                if (response.ok) {
+                    const jobs = await response.json();
+                    if (Array.isArray(jobs)) {
+                        document.getElementById("activeJobsCount").textContent = jobs.length;
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching job stats:", error);
+            }
+        }
+        
+        // Run on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchJobStats();
+        });
+    </script>
+</body>
+</html>

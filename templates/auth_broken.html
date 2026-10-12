@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Job Recommendation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .switch-auth {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .switch-auth a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h1>Login</h1>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                    <div class="error" id="loginEmailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                    <div class="error" id="loginPasswordError"></div>
+                </div>
+                
+                <div id="loginError" class="error"></div>
+                <div id="loginLoading" class="loading"><div class="spinner"></div></div>
+                
+                <button type="submit">Login</button>
+            </form>
+            
+            <div class="switch-auth">
+                Don't have an account? <a onclick="switchForm('register')">Register here</a>
+            </div>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none;">
+            <h1>Register</h1>
+            <form id="registerFormElement">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" required>
+                    <div class="error" id="registerNameError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                    <div class="error" id="registerEmailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required>
+                    <div class="error" id="registerPasswordError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerRole">Account Type</label>
+                    <select id="registerRole" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="user">User (Job Seeker)</option>
+                        <option value="admin">Admin (Recruiter)</option>
+                    </select>
+                </div>
+                
+                <div id="registerError" class="error"></div>
+                <div id="registerLoading" class="loading"><div class="spinner"></div></div>
+                
+                <button type="submit">Register</button>
+            </form>
+            
+            <div class="switch-auth">
+                Already have an account? <a onclick="switchForm('login')">Login here</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK - Using Compat Version -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        // ============ UTILITY FUNCTIONS (Available immediately) ============
+        
+        // Switch between forms
+        function switchForm(form) {
+            console.log('🔵 Switching to:', form);
+            document.getElementById('loginForm').style.display = form === 'login' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = form === 'register' ? 'block' : 'none';
+            clearErrors();
+        }
+        
+        // Clear all errors
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => {
+                el.textContent = '';
+                el.style.display = 'none';
+            });
+        }
+        
+        // Show error
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        // ============ WAIT FOR FIREBASE AND INITIALIZE ============
+        
+        console.log('🔵 Waiting for Firebase SDK to initialize...');
+        
+        // Function to wait for firebase to be available
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                let attempts = 0;
+                const maxAttempts = 50;
+                
+                const checkFirebase = setInterval(() => {
+                    attempts++;
+                    if (typeof firebase !== 'undefined') {
+                        console.log('✅ Firebase SDK loaded!');
+                        clearInterval(checkFirebase);
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        console.error('❌ Firebase SDK failed to load');
+                        clearInterval(checkFirebase);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+        
+        // Initialize Firebase once SDK is loaded
+        waitForFirebase().then(() => {
+            // Firebase Configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyBn2zS0oGvllRibOYAHhV5FlI3GbsG8ZX0",
+                authDomain: "job-recommendation-syste-fc2b0.firebaseapp.com",
+                databaseURL: "https://job-recommendation-system.firebaseio.com",
+                projectId: "job-recommendation-syste-fc2b0",
+                storageBucket: "job-recommendation-syste-fc2b0.firebasestorage.app",
+                messagingSenderId: "1084464227558",
+                appId: "1:1084464227558:web:8249b24c446320ed738727"
+            };
+            
+            console.log('🔵 Firebase SDK Loading...');
+            console.log('Project ID:', firebaseConfig.projectId);
+            console.log('Auth Domain:', firebaseConfig.authDomain);
+            
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            
+            console.log('✅ Firebase initialized successfully');
+            console.log('Auth state:', auth.currentUser);
+        }
+        
+        // Show error
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        // Login Form Handler
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            console.log('🔵 LOGIN FORM SUBMITTED');
+            console.log('Email:', email);
+            
+            document.getElementById('loginLoading').style.display = 'block';
+            
+            try {
+                // Sign in with Firebase
+                console.log('🔵 Signing in with Firebase...');
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                console.log('✅ Firebase login successful! UID:', userCredential.user.uid);
+                
+                const idToken = await userCredential.user.getIdToken();
+                console.log('✅ ID Token obtained');
+                
+                // Verify with backend
+                console.log('🔵 Verifying with backend /api/login');
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken })
+                });
+                
+                console.log('Backend response status:', response.status);
+                const data = await response.json();
+                console.log('Backend response:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+                
+                console.log('✅ Backend login verification successful!');
+                
+                // Store credentials
+                localStorage.setItem('idToken', idToken);
+                localStorage.setItem('user', JSON.stringify({
+                    user_id: data.user_id,
+                    email: data.email,
+                    name: data.name,
+                    role: data.role
+                }));
+                
+                console.log('✅ User data saved to localStorage');
+                
+                // Redirect based on role
+                console.log('Redirecting to:', data.role === 'admin' ? '/admin_dashboard' : '/user_dashboard');
+                window.location.href = data.role === 'admin' ? '/admin_dashboard' : '/user_dashboard';
+                
+            } catch (error) {
+                console.error('❌ LOGIN ERROR:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                showError('loginError', error.message);
+            } finally {
+                document.getElementById('loginLoading').style.display = 'none';
+            }
+        });
+        
+        // Register Form Handler
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const role = document.getElementById('registerRole').value;
+            
+            console.log('🔵 REGISTER FORM SUBMITTED');
+            console.log('Name:', name);
+            console.log('Email:', email);
+            console.log('Role:', role);
+            console.log('Password length:', password.length);
+            
+            // Validation
+            if (password.length < 6) {
+                console.log('❌ Password too short');
+                showError('registerPasswordError', 'Password must be at least 6 characters');
+                return;
+            }
+            
+            document.getElementById('registerLoading').style.display = 'block';
+            
+            try {
+                // Create Firebase user
+                console.log('🔵 Creating Firebase user with email:', email);
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                console.log('✅ Firebase user created! UID:', userCredential.user.uid);
+                console.log('✅ Firebase user email verified:', userCredential.user.emailVerified);
+                
+                const idToken = await userCredential.user.getIdToken();
+                const firebase_uid = userCredential.user.uid;
+                console.log('✅ ID Token obtained');
+                console.log('✅ Firebase UID:', firebase_uid);
+                
+                // Register in backend - Send firebase_uid, NOT password
+                console.log('🔵 Sending registration to backend /api/register');
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, name, role, firebase_uid })  // \u2190 Send firebase_uid
+                });
+                
+                console.log('Backend response status:', response.status);
+                const data = await response.json();
+                console.log('Backend response:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+                
+                console.log('✅ Backend registration successful!');
+                
+                // Auto-login
+                localStorage.setItem('idToken', idToken);
+                localStorage.setItem('user', JSON.stringify({
+                    user_id: data.user_id,  // \u2190 From backend
+                    email: data.email,
+                    name: data.name,
+                    role: data.role
+                }));
+                
+                console.log('✅ User data saved to localStorage');
+                alert('Registration successful! Redirecting...');
+                window.location.href = role === 'admin' ? '/admin_dashboard' : '/user_dashboard';
+                
+            } catch (error) {
+                console.error('❌ REGISTRATION ERROR:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                showError('registerError', error.message);
+            } finally {
+                document.getElementById('registerLoading').style.display = 'none';
+            }
+        });
+        
+        // Check if already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const savedUser = localStorage.getItem('user');
+                if (savedUser) {
+                    const userObj = JSON.parse(savedUser);
+                    window.location.href = userObj.role === 'admin' ? '/admin_dashboard' : '/user_dashboard';
+                }
+            }
+        });
+        
+        }); // End of waitForFirebase().then()
+    </script>
+</body>
+</html>

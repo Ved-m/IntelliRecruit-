@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Job Recommendation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 24px;
+        }
+        
+        .navbar button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .navbar button:hover {
+            background: #c0392b;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .job-card, .application-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .job-card h3, .application-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .job-card p, .application-card p {
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .apply-btn, .upload-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .apply-btn:hover, .upload-btn:hover {
+            background: #229954;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-reviewed {
+            background: #3498db;
+            color: white;
+        }
+        
+        .status-accepted {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-rejected {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .review-section {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .review-section h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .review-text {
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 25px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: black;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input[type="file"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            padding: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>👨‍💼 User Dashboard</h1>
+        <div>
+            <span id="userName"></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Available Jobs Section -->
+        <div class="section">
+            <h2 class="section-title">📋 Available Jobs</h2>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('available')">All Jobs</button>
+                <button class="tab-btn" onclick="switchTab('applications')">My Applications</button>
+            </div>
+            
+            <div id="available" class="tab-content active">
+                <div id="jobsList" class="loading">Loading jobs...</div>
+            </div>
+        </div>
+        
+        <!-- Applications Section -->
+        <div id="applications" class="tab-content">
+            <div id="applicationsList" class="loading">Loading applications...</div>
+        </div>
+    </div>
+    
+    <!-- Apply Job Modal -->
+    <div id="applyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('applyModal')">&times;</span>
+            <h2>Apply for Job</h2>
+            <form id="applyForm" onsubmit="submitApplication(event)">
+                <input type="hidden" id="selectedJobId">
+                
+                <div class="form-group">
+                    <label>Job Title:</label>
+                    <p id="jobTitleDisplay" style="color: #2c3e50; margin: 10px 0;"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resumeFile">Upload Resume (PDF)</label>
+                    <input type="file" id="resumeFile" accept=".pdf" required>
+                    <small style="color: #666;">Only PDF files are allowed</small>
+                </div>
+                
+                <div id="applyError" class="error"></div>
+                <div id="applySuccess" class="success"></div>
+                
+                <button type="submit" class="upload-btn" style="width: 100%;">Submit Application</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <!-- Firebase SDK - Compat Version -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBn2zS0oGvllRibOYAHhV5FlI3GbsG8ZX0",
+            authDomain: "job-recommendation-syste-fc2b0.firebaseapp.com",
+            projectId: "job-recommendation-syste-fc2b0",
+            storageBucket: "job-recommendation-syste-fc2b0.firebasestorage.app",
+            messagingSenderId: "1084464227558",
+            appId: "1:1084464227558:web:8249b24c446320ed738727"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        
+        // Check authentication
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '/auth';
+                return;
+            }
+            
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                const userObj = JSON.parse(userData);
+                document.getElementById('userName').textContent = `Welcome, ${userObj.name}`;
+            }
+            
+            loadJobs();
+            loadApplications();
+        });
+        
+        // Get ID Token
+        function getIdToken() {
+            return localStorage.getItem('idToken');
+        }
+        
+        // API Call with Auth
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const token = getIdToken();
+            
+            const options = {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            if (body) options.body = JSON.stringify(body);
+            
+            const response = await fetch(endpoint, options);
+            
+            if (response.status === 401) {
+                logout();
+            }
+            
+            return response.json();
+        }
+        
+        // Load all jobs
+        async function loadJobs() {
+            try {
+                const jobs = await apiCall('/api/jobs');
+                const jobsList = document.getElementById('jobsList');
+                
+                if (jobs.error) {
+                    jobsList.innerHTML = `<div class="empty-state">Error loading jobs</div>`;
+                    return;
+                }
+                
+                if (!Array.isArray(jobs) || jobs.length === 0) {
+                    jobsList.innerHTML = `<div class="empty-state">No jobs available</div>`;
+                    return;
+                }
+                
+                jobsList.innerHTML = jobs.map(job => `
+                    <div class="job-card">
+                        <h3>${job.title}</h3>
+                        <p>${job.description}</p>
+                        <button class="apply-btn" onclick="openApplyModal(${job.id}, '${job.title}')">
+                            Apply Now
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                document.getElementById('jobsList').innerHTML = `<div class="error">Failed to load jobs</div>`;
+            }
+        }
+        
+        // Load user applications
+        async function loadApplications() {
+            try {
+                const applications = await apiCall('/api/my-applications');
+                const appsList = document.getElementById('applicationsList');
+                
+                if (applications.error) {
+                    appsList.innerHTML = `<div class="empty-state">Error loading applications</div>`;
+                    return;
+                }
+                
+                if (!Array.isArray(applications) || applications.length === 0) {
+                    appsList.innerHTML = `<div class="empty-state">No applications yet. Apply for a job to get started!</div>`;
+                    return;
+                }
+                
+                appsList.innerHTML = applications.map(app => `
+                    <div class="application-card">
+                        <h3>${app.title}</h3>
+                        <p><strong>Score:</strong> ${app.score}%</p>
+                        <p><strong>Status:</strong> <span class="status-badge status-${app.status}">${app.status.toUpperCase()}</span></p>
+                        <p><strong>Applied:</strong> ${new Date(app.submitted_at).toLocaleDateString()}</p>
+                        ${app.review ? `
+                            <div class="review-section">
+                                <h4>📝 Admin Review</h4>
+                                <div class="review-text">${app.review}</div>
+                                <small>Reviewed on: ${new Date(app.reviewed_at).toLocaleDateString()}</small>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('applicationsList').innerHTML = `<div class="error">Failed to load applications</div>`;
+            }
+        }
+        
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            if (tabName === 'available') {
+                document.getElementById('available').classList.add('active');
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            } else {
+                document.getElementById('applications').classList.add('active');
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            }
+        }
+        
+        // Open apply modal
+        function openApplyModal(jobId, jobTitle) {
+            document.getElementById('selectedJobId').value = jobId;
+            document.getElementById('jobTitleDisplay').textContent = jobTitle;
+            document.getElementById('applyForm').reset();
+            document.getElementById('applyError').textContent = '';
+            document.getElementById('applySuccess').textContent = '';
+            document.getElementById('applyModal').style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Submit application
+        async function submitApplication(event) {
+            event.preventDefault();
+            
+            const jobId = document.getElementById('selectedJobId').value;
+            const resumeFile = document.getElementById('resumeFile').files[0];
+            const token = getIdToken();
+            
+            if (!resumeFile) {
+                document.getElementById('applyError').textContent = 'Please select a resume file';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('job_id', jobId);
+            formData.append('resume', resumeFile);
+            
+            try {
+                const response = await fetch('/api/apply-job', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Application failed');
+                }
+                
+                document.getElementById('applySuccess').textContent = '✅ Application submitted successfully!';
+                setTimeout(() => {
+                    closeModal('applyModal');
+                    loadApplications();
+                }, 1500);
+            } catch (error) {
+                document.getElementById('applyError').textContent = error.message;
+            }
+        }
+        
+        // Logout
+        function logout() {
+            console.log('🔵 LOGOUT CLICKED');
+            try {
+                auth.signOut().then(() => {
+                    console.log('✅ Firebase signOut successful');
+                    localStorage.removeItem('idToken');
+                    localStorage.removeItem('user');
+                    console.log('✅ Local storage cleared');
+                    window.location.href = '/auth';
+                }).catch((error) => {
+                    console.error('❌ SignOut error:', error);
+                    // Force redirect even if signOut fails
+                    localStorage.removeItem('idToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/auth';
+                });
+            } catch (error) {
+                console.error('❌ Logout error:', error);
+                localStorage.removeItem('idToken');
+                localStorage.removeItem('user');
+                window.location.href = '/auth';
+            }
+        }
+    </script>
+</body>
+</html>
